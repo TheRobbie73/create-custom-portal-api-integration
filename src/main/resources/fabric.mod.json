@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "createcustomportalapiintegration",
   "version": "${version}",
-  "name": "Example Mod",
+  "name": "Create Custom Portal API Integration",
   "description": "This is an example description! Tell everyone what your mod is about!",
   "authors": [
-    "Me!"
+    "ReignOfFROZE"
   ],
   "contact": {
     "sources": "https://github.com/Fabricators-of-Create/create-fabric-addon-template"
@@ -15,7 +15,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.example.modid.ExampleMod"
+      "reign.createaddons.customportalapiintegrations.CreateCustomPortalAPIIntegrationMod"
     ]
   },
   "mixins": [

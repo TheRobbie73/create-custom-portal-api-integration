@@ -1,12 +1,12 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.example.modid.mixin",
+  "package": "reign.createaddons.customportalapiintegrations.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
   ],
   "client": [
-    "MinecraftMixin"
+    "TrackBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1
