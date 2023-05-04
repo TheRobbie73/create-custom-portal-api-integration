@@ -27,12 +27,6 @@ public class CreateCustomPortalAPIIntegrationMod implements ModInitializer {
 				() -> () -> "{} is accessing Porting Lib from the client!",
 				() -> () -> "{} is accessing Porting Lib from the server!"
 		), NAME);
-		CustomPortalBuilder.beginPortal()
-				.frameBlock(Blocks.DIAMOND_BLOCK)
-				.lightWithItem(Items.ENDER_EYE)
-				.destDimID(new ResourceLocation("the_end"))
-				.tintColor(45,65,101)
-				.registerPortal();
 	}
 
 	public static ResourceLocation id(String path) {
