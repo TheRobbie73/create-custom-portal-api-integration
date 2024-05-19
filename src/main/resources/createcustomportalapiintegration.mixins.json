@@ -4,11 +4,11 @@
   "package": "reign.createaddons.customportalapiintegrations.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "TrackBlockMixin"
   ],
   "client": [
   ],
   "server": [
-    "TrackBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

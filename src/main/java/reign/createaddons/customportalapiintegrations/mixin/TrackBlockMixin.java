@@ -3,9 +3,9 @@ package reign.createaddons.customportalapiintegrations.mixin;
 import java.util.Random;
 
 import com.google.common.base.Predicates;
-import com.simibubi.create.content.contraptions.components.structureMovement.glue.SuperGlueEntity;
-import com.simibubi.create.content.logistics.trains.track.TrackBlock;
-import com.simibubi.create.content.logistics.trains.track.TrackTileEntity;
+import com.simibubi.create.content.contraptions.glue.SuperGlueEntity;
+import com.simibubi.create.content.trains.track.TrackBlock;
+import com.simibubi.create.content.trains.track.TrackBlockEntity;
 import com.simibubi.create.foundation.utility.BlockFace;
 import com.simibubi.create.foundation.utility.Components;
 import com.simibubi.create.foundation.utility.Iterate;
@@ -21,6 +21,7 @@ import net.kyrptonaught.customportalapi.util.CustomTeleporter;
 import net.kyrptonaught.customportalapi.util.PortalLink;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -42,8 +43,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.simibubi.create.content.logistics.trains.TrackPropagator;
-import com.simibubi.create.content.logistics.trains.track.TrackShape;
+import com.simibubi.create.content.trains.track.TrackPropagator;
+import com.simibubi.create.content.trains.track.TrackShape;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -63,11 +64,11 @@ public abstract class TrackBlockMixin {
 
 	@Shadow
 	@Final
-	public static final BooleanProperty HAS_TE = BooleanProperty.create("turn");
+	public static final BooleanProperty HAS_BE = BooleanProperty.create("turn");
 
 	protected void connectToOtherDimension(ServerLevel level, BlockPos pos, BlockState state) {
 		TrackShape shape = state.getValue(TrackBlock.SHAPE);
-		Direction.Axis portalTest = shape == TrackShape.XO ? Direction.Axis.X : shape == TrackShape.ZO ? Direction.Axis.Z : null;
+		Axis portalTest = shape == TrackShape.XO ? Axis.X : shape == TrackShape.ZO ? Axis.Z : null;
 		if (portalTest == null)
 			return;
 
@@ -80,6 +81,7 @@ public abstract class TrackBlockMixin {
 			BlockState portalState = level.getBlockState(portalPos);
 			if (!(portalState.getBlock() instanceof NetherPortalBlock) && !(portalState.getBlock() instanceof CustomPortalBlock))
 				continue;
+
 			if(portalState.getBlock() instanceof NetherPortalBlock) {
 				connectToNether(level, pos, state);
 			}
@@ -91,7 +93,7 @@ public abstract class TrackBlockMixin {
 
 	protected void connectToCustomPortal(ServerLevel level, BlockPos pos, BlockState state) {
 		TrackShape shape = state.getValue(TrackBlock.SHAPE);
-		Direction.Axis portalTest = shape == TrackShape.XO ? Direction.Axis.X : shape == TrackShape.ZO ? Direction.Axis.Z : null;
+		Axis portalTest = shape == TrackShape.XO ? Axis.X : shape == TrackShape.ZO ? Axis.Z : null;
 		if (portalTest == null)
 			return;
 
@@ -124,16 +126,16 @@ public abstract class TrackBlockMixin {
 			}
 
 			level.setBlock(pos, state.setValue(SHAPE, TrackShape.asPortal(d))
-					.setValue(HAS_TE, true), 3);
-			BlockEntity te = level.getBlockEntity(pos);
-			if (te instanceof TrackTileEntity tte)
-				tte.bind(otherLevel.dimension(), otherTrackPos);
+					.setValue(HAS_BE, true), 3);
+			BlockEntity be = level.getBlockEntity(pos);
+			if (be instanceof TrackBlockEntity tbe)
+				tbe.bind(otherLevel.dimension(), otherTrackPos);
 
 			otherLevel.setBlock(otherTrackPos, state.setValue(SHAPE, TrackShape.asPortal(otherTrack.getFace()))
-					.setValue(HAS_TE, true), 3);
-			BlockEntity otherTe = otherLevel.getBlockEntity(otherTrackPos);
-			if (otherTe instanceof TrackTileEntity tte)
-				tte.bind(level.dimension(), pos);
+					.setValue(HAS_BE, true), 3);
+			BlockEntity otherBE = otherLevel.getBlockEntity(otherTrackPos);
+			if (otherBE instanceof TrackBlockEntity tbe)
+				tbe.bind(level.dimension(), pos);
 
 			pop = false;
 		}
