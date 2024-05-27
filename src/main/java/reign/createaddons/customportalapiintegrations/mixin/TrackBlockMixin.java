@@ -54,10 +54,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 @Mixin(TrackBlock.class)
 public abstract class TrackBlockMixin {
 
-
-	@Shadow
-	protected abstract void connectToNether(ServerLevel level, BlockPos pos, BlockState state);
-
 	@Shadow
 	@Final
 	public static final EnumProperty<TrackShape> SHAPE = EnumProperty.create("shape", TrackShape.class);
@@ -79,32 +75,7 @@ public abstract class TrackBlockMixin {
 		for(Direction d : Iterate.directionsInAxis(portalTest)) {
 			BlockPos portalPos = pos.relative(d);
 			BlockState portalState = level.getBlockState(portalPos);
-			if (!(portalState.getBlock() instanceof NetherPortalBlock) && !(portalState.getBlock() instanceof CustomPortalBlock))
-				continue;
-
-			if(portalState.getBlock() instanceof NetherPortalBlock) {
-				connectToNether(level, pos, state);
-			}
-			if(portalState.getBlock() instanceof CustomPortalBlock) {
-				connectToCustomPortal(level, pos, state);
-			}
-		}
-	}
-
-	protected void connectToCustomPortal(ServerLevel level, BlockPos pos, BlockState state) {
-		TrackShape shape = state.getValue(TrackBlock.SHAPE);
-		Axis portalTest = shape == TrackShape.XO ? Axis.X : shape == TrackShape.ZO ? Axis.Z : null;
-		if (portalTest == null)
-			return;
-
-		boolean pop = false;
-		String fail = null;
-		BlockPos failPos = null;
-
-		for(Direction d : Iterate.directionsInAxis(portalTest)) {
-			BlockPos portalPos = pos.relative(d);
-			BlockState portalState = level.getBlockState(portalPos);
-			if (!(portalState.getBlock() instanceof CustomPortalBlock))
+			if (!(portalState.getBlock() instanceof CustomPortalBlock || portalState.getBlock() instanceof NetherPortalBlock))
 				continue;
 
 			pop = true;
@@ -171,7 +142,7 @@ public abstract class TrackBlockMixin {
 	protected Pair<ServerLevel, BlockFace> getOtherSide(ServerLevel level, BlockFace inboundTrack) {
 		BlockPos portalPos = inboundTrack.getConnectedPos();
 		BlockState portalState = level.getBlockState(portalPos);
-		if (!(portalState.getBlock() instanceof NetherPortalBlock) && !(portalState.getBlock() instanceof CustomPortalBlock))
+		if (!(portalState.getBlock() instanceof NetherPortalBlock || portalState.getBlock() instanceof CustomPortalBlock))
 			return null;
 
 		MinecraftServer minecraftserver = level.getServer();
@@ -188,10 +159,10 @@ public abstract class TrackBlockMixin {
 			return null;
 
 		PortalForcer teleporter = otherLevel.getPortalForcer();
-		PortalInfo portalinfo = null;
 		SuperGlueEntity probe = new SuperGlueEntity(level, new AABB(portalPos));
 		probe.setYRot(inboundTrack.getFace()
 				.toYRot());
+		PortalInfo portalinfo = null;
 		if(portalState.getBlock() instanceof NetherPortalBlock) {
 			portalinfo = probe.findDimensionEntryPoint(otherLevel);
 		} else {
@@ -207,9 +178,8 @@ public abstract class TrackBlockMixin {
 			return null;
 
 		Direction targetDirection = inboundTrack.getFace();
-		if (targetDirection.getAxis() == CustomPortalHelper.getAxisFrom(otherPortalState)) {
+		if (targetDirection.getAxis() == CustomPortalHelper.getAxisFrom(otherPortalState))
 			targetDirection = targetDirection.getClockWise();
-		}
 		BlockPos otherPos = otherPortalPos.relative(targetDirection);
 		return Pair.of(otherLevel, new BlockFace(otherPos, targetDirection.getOpposite()));
 	}
