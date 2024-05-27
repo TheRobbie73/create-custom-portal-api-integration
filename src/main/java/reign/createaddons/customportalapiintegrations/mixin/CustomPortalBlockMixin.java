@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CustomPortalBlock.class)
 public abstract class CustomPortalBlockMixin {
-	@Inject(method = "entityInside", at = @At(value = "HEAD"))
+	@Inject(method = "entityInside", at = @At(value = "HEAD"), cancellable = true)
 	public void customPortalBlock$entityInside(BlockState state, Level world, BlockPos pos, Entity entity, CallbackInfo ci) {
 		if (entity.isVehicle() || entity.isPassenger()) ci.cancel();
 	}
